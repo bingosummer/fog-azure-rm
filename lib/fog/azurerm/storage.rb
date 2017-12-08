@@ -12,6 +12,8 @@ module Fog
       # Recognizes when creating data client
       recognizes :azure_storage_account_name
       recognizes :azure_storage_access_key
+      recognizes :azure_storage_dns_suffix
+      recognizes :default_endpoints_protocol
       recognizes :debug
 
       request_path 'fog/azurerm/requests/storage'
@@ -120,10 +122,17 @@ module Fog
 
           @azure_storage_account_name = options[:azure_storage_account_name]
           @azure_storage_access_key = options[:azure_storage_access_key]
+          @azure_storage_dns_suffix = options[:azure_storage_dns_suffix]
+          @default_endpoints_protocol = options[:default_endpoints_protocol]
 
-          azure_client = Azure::Storage::Client.create(storage_account_name: @azure_storage_account_name,
-                                                       storage_access_key: @azure_storage_access_key)
-          azure_client.storage_blob_host = get_blob_endpoint(@azure_storage_account_name, true, @environment)
+          client_options = {
+            :storage_account_name => @azure_storage_account_name,
+            :storage_access_key   => @azure_storage_access_key
+          }
+          client_options[:default_endpoints_protocol] = @default_endpoints_protocol unless @default_endpoints_protocol.nil?
+          client_options[:storage_dns_suffix] = @azure_storage_dns_suffix unless @azure_storage_dns_suffix.nil?
+
+          azure_client = Azure::Storage::Client.create(client_options)
           @blob_client = azure_client.blob_client
           @blob_client.with_filter(Azure::Storage::Core::Filter::ExponentialRetryPolicyFilter.new)
           @blob_client.with_filter(Azure::Core::Http::DebugFilter.new) if @debug

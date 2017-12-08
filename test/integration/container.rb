@@ -54,11 +54,14 @@ begin
   keys = storage_account.get_access_keys
   access_key = keys.first.value
 
-  storage_data = Fog::Storage::AzureRM.new(
+  options = {
     azure_storage_account_name: storage_account.name,
     azure_storage_access_key: access_key,
     environment: azure_credentials['environment']
-  )
+  }
+  options[:default_endpoints_protocol] = azure_credentials['default_endpoints_protocol'] unless azure_credentials['default_endpoints_protocol'].nil?
+  options[:storage_dns_suffix] = azure_credentials['azure_storage_dns_suffix'] unless azure_credentials['azure_storage_dns_suffix'].nil?
+  storage_data = Fog::Storage::AzureRM.new(options)
 
   ########################################################################################################################
   ######################                             Check Container Exists                         ######################
@@ -76,7 +79,7 @@ begin
   )
   puts "Created container: #{container.key}"
 
-  storage_data.directories.create(
+  container = storage_data.directories.create(
     key: test_container_name,
     public: true
   )

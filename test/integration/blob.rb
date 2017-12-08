@@ -51,12 +51,17 @@ begin
 
   access_key = storage_account.get_access_keys[0].value
   Fog::Logger.debug access_key.inspect
-  storage_data = Fog::Storage.new(
+
+  options = {
     provider: 'AzureRM',
     azure_storage_account_name: storage_account.name,
     azure_storage_access_key: access_key,
     environment: azure_credentials['environment']
-  )
+  }
+  options[:default_endpoints_protocol] = azure_credentials['default_endpoints_protocol'] unless azure_credentials['default_endpoints_protocol'].nil?
+  options[:storage_dns_suffix] = azure_credentials['azure_storage_dns_suffix'] unless azure_credentials['azure_storage_dns_suffix'].nil?
+
+  storage_data = Fog::Storage.new(options)
 
   ########################################################################################################################
   ######################                                Create Container                            ######################
