@@ -127,7 +127,8 @@ module Fog
 
           client_options = {
             :storage_account_name => @azure_storage_account_name,
-            :storage_access_key   => @azure_storage_access_key
+            :storage_access_key   => @azure_storage_access_key,
+            :user_agent_prefix    => USER_AGENT_PREFIX
           }
           client_options[:default_endpoints_protocol] = @default_endpoints_protocol unless @default_endpoints_protocol.nil?
           client_options[:storage_dns_suffix] = @azure_storage_dns_suffix unless @azure_storage_dns_suffix.nil?
